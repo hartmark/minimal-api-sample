@@ -28,8 +28,8 @@ builder.Services.AddDependencyInjection();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
-builder.Services.AddLogging(logging => { logging.SetMinimumLevel(LogLevel.Debug); });
-builder.Services.AddFileLogging(builder.Configuration);
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.AddFileLogging(builder.Configuration);
 
 builder.Services.AddFluentValidation(v => v.RegisterValidatorsFromAssemblyContaining<WeatherEntryValidator>());
 
