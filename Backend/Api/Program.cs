@@ -29,7 +29,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
-builder.Logging.AddFileLogging(builder.Configuration);
+builder.Logging.AddFile(builder.Configuration);
 
 builder.Services.AddFluentValidation(v => v.RegisterValidatorsFromAssemblyContaining<WeatherEntryValidator>());
 

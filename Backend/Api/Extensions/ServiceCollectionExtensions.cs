@@ -31,14 +31,5 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITicketFactory, DefaultTicketFactory>();
         services.AddSingleton<IJwtDecoder, JwtDecoder>();
         services.AddSingleton<IAlgorithmFactory, ECDSAAlgorithmFactory>();
-
-    }
-    public static void AddFileLogging(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddLogging(loggingBuilder =>
-        {
-            var loggingSection = configuration.GetSection("Logging");
-            loggingBuilder.AddFile(loggingSection);
-        });
     }
 }
