@@ -38,6 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Backend\ApiClassic\ApiClassic.csproj" />
       <ProjectReference Include="..\Backend\Api\Api.csproj" />
       <ProjectReference Include="..\Backend\Entities\Entities.csproj" />
       <ProjectReference Include="..\Backend\Infrastructure\Infrastructure.csproj" />

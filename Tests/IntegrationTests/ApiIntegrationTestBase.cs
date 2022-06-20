@@ -13,7 +13,6 @@ namespace Tests.IntegrationTests;
 public class ApiIntegrationTestBase : IDisposable
 {
     protected readonly ITestOutputHelper TestOutputHelper;
-    private WebApplicationFactory<Program> _host = null!;
 
     protected ApiIntegrationTestBase(ITestOutputHelper testOutputHelper)
     {
@@ -26,13 +25,12 @@ public class ApiIntegrationTestBase : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        _host?.Dispose();
         Client?.Dispose();
     }
 
     private void InitializeAsync()
     {
-        _host = new WebApplicationFactory<Program>()
+        var host = new WebApplicationFactory<ApiProgram>()
             .WithWebHostBuilder(builder =>
             {
                 builder
@@ -47,6 +45,6 @@ public class ApiIntegrationTestBase : IDisposable
                     });
             });
 
-        Client = _host.CreateClient();
+        Client = host.CreateClient();
     }
 }

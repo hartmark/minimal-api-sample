@@ -1,32 +1,55 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Api;
-using Api.Routes;
-using Api.Validation;
+using ApiClassic.Extensions;
+using ApiClassic.Validation;
 using FluentValidation.AspNetCore;
 using JWT.Extensions.AspNetCore;
-using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services
-    .AddApiVersioning(setup =>
-    {
-        setup.ReportApiVersions = true;
-    })
-    .AddApiExplorer(setup =>
-    {
-        setup.GroupNameFormat = "'v'VVV";
-        setup.SubstituteApiVersionInUrl = true;
-    });
-
 builder.Services.AddDependencyInjection();
 
-builder.Services.AddSwaggerGen();
-builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = HeaderNames.Authorization,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description =
+            $"JWT Authorization header using the Bearer scheme. {Environment.NewLine}" +
+            "Enter \"Bearer 'JWT'\" in the text input below."
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });    
+});
 
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Logging.AddFile(builder.Configuration);
@@ -39,13 +62,6 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     Formatting = Formatting.None,
     NullValueHandling = NullValueHandling.Ignore
 };
-
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-});
 
 builder.Services.AddAuthentication(options =>
     {
@@ -61,9 +77,6 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-app.MapWeatherForecastRoutes();
-app.MapAuthRoutes();
-
 app.UseAuthentication();
 app.UseJwtAuthentication();
 
@@ -78,10 +91,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.MapControllers();
+
 app.Run();
 
 /// <summary>
 /// We need this to differentiate between the APis in the test
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global
-internal class ApiProgram : Program {}
+internal class ApiClassicProgram : Program {}
